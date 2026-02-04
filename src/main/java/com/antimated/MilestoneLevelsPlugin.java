@@ -116,6 +116,7 @@ public class MilestoneLevelsPlugin extends Plugin
 			case LOGIN_SCREEN_AUTHENTICATOR:
 			case CONNECTION_LOST:
 				previousXpMap.clear();
+				leaderboardManager.reset();
 				break;
 		}
 
