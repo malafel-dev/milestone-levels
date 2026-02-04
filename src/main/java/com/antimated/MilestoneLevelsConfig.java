@@ -5,6 +5,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.hiscore.HiscoreEndpoint;
 import net.runelite.client.ui.JagexColors;
 
 @ConfigGroup(MilestoneLevelsConfig.CONFIG_GROUP)
@@ -134,9 +135,64 @@ public interface MilestoneLevelsConfig extends Config
 	}
 
 	@ConfigSection(
+		name = "Hiscore Ranks",
+		description = "All hiscore rank notification settings",
+		position = 300
+	)
+	String SECTION_LEADERBOARD = "leaderboardRanks";
+
+	@ConfigItem(
+		keyName = "notificationLeaderboardRankColor",
+		name = "Color",
+		description = "Changes the color of the notification title and text.",
+		section = SECTION_LEADERBOARD,
+		position = 0
+	)
+	default Color notificationLeaderboardRankColor()
+	{
+		return JagexColors.DARK_ORANGE_INTERFACE_TEXT;
+	}
+
+	@ConfigItem(
+		keyName = "notificationLeaderboardRankTitle",
+		name = "Title",
+		description = "Can include $rank, $xp, $player, and $skill variables.",
+		section = SECTION_LEADERBOARD,
+		position = 1
+	)
+	default String notificationLeaderboardRankTitle()
+	{
+		return "Hiscore rank milestone";
+	}
+
+	@ConfigItem(
+		keyName = "notificationLeaderboardRankText",
+		name = "Text",
+		description = "Can include $rank, $xp, $player, and $skill variables.",
+		section = SECTION_LEADERBOARD,
+		position = 2
+	)
+	default String notificationLeaderboardRankText()
+	{
+		return "Achieved rank $rank in $skill,\nsurpassing $name!";
+	}
+
+	@ConfigItem(
+		keyName = "hiscoreEndpoint",
+		name = "Leaderboard",
+		description = "Configures which leaderboard to use for rank notifications.",
+		section = SECTION_LEADERBOARD,
+		position = 3
+	)
+	default HiscoreEndpoint hiscoreEndpoint()
+	{
+		return HiscoreEndpoint.NORMAL;
+	}
+
+	@ConfigSection(
 		name = "Skills",
 		description = "Settings for what skills we want to display notifications on",
-		position = 300
+		position = 400
 	)
 	String SECTION_SKILLS = "skills";
 

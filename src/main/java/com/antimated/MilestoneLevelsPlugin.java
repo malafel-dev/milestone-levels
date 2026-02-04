@@ -1,10 +1,13 @@
 package com.antimated;
 
+import com.antimated.leaderboard.*;
 import com.antimated.notifications.NotificationManager;
 import com.antimated.util.Util;
 import com.antimated.version.VersionManager;
 import com.google.common.primitives.Ints;
 import com.google.inject.Provides;
+
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.swing.*;
+
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
@@ -19,15 +24,22 @@ import net.runelite.api.GameState;
 import net.runelite.api.Skill;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.StatChanged;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.hiscore.HiscoreClient;
+import net.runelite.client.hiscore.HiscoreEndpoint;
+import net.runelite.client.hiscore.HiscoreResult;
+import net.runelite.client.hiscore.HiscoreSkill;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
+
 
 @Slf4j
 @PluginDescriptor(
@@ -59,10 +71,14 @@ public class MilestoneLevelsPlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
+	private LeaderboardManager leaderboardManager;
+
+	@Inject
 	@Named("developerMode")
 	boolean developerMode;
 
 	private final Map<Skill, Integer> previousXpMap = new EnumMap<>(Skill.class);
+	private HiscoreEndpoint previousHiscoreEndpoint = HiscoreEndpoint.NORMAL;
 
 	@Provides
 	MilestoneLevelsConfig provideConfig(ConfigManager configManager)
@@ -74,6 +90,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	protected void startUp()
 	{
 		clientThread.invoke(this::initializePreviousXpMap);
+		previousHiscoreEndpoint = config.hiscoreEndpoint();
 		notifications.startUp();
 		version.startUp();
 		migrate();
@@ -102,6 +119,20 @@ public class MilestoneLevelsPlugin extends Plugin
 				break;
 		}
 
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick event) {
+		leaderboardManager.process(event);
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged event)
+	{
+		if (previousHiscoreEndpoint != config.hiscoreEndpoint()) {
+			leaderboardManager.reset();
+			previousHiscoreEndpoint = config.hiscoreEndpoint();
+		}
 	}
 
 	@Subscribe
@@ -168,10 +199,20 @@ public class MilestoneLevelsPlugin extends Plugin
 				notifyExperience(skill, xp);
 			}
 		}
+
+		final List<LeaderboardEntry> milestoneLeaderboardEntries = getMilestoneLeaderboardEntries(skill, previousXp, currentXp);
+		if (shouldNotifyForSkill(skill) && !milestoneLeaderboardEntries.isEmpty())
+		{
+			log.debug("Milestone leaderboard rank to notify for {}", skill.getName());
+
+			for (LeaderboardEntry entry: milestoneLeaderboardEntries) {
+				notifyLeaderboard(skill, entry);
+			}
+		}
 	}
 
 	/**
-	 * Gets list of xp values between two numbers
+	 * Gets the list of milestone xp values between two numbers from values specified in the milestone experience config
 	 *
 	 * @return List<Integer>
 	 */
@@ -204,6 +245,18 @@ public class MilestoneLevelsPlugin extends Plugin
 			.filter(n -> n > previousLevel && n <= currentLevel)
 			.sorted()
 			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Gets the list of milestone xp values between two numbers from values that were fetched from the OSRS hiscores
+	 *
+	 * @param skill Skill
+	 * @param previousXp int
+	 * @param currentXp int
+	 * @return List<LeaderboardEntry>
+	 */
+	private List<LeaderboardEntry> getMilestoneLeaderboardEntries(Skill skill, int previousXp, int currentXp) {
+		return leaderboardManager.getMilestoneLeaderboardEntries(skill, previousXp, currentXp);
 	}
 
 	/**
@@ -270,6 +323,25 @@ public class MilestoneLevelsPlugin extends Plugin
 		int color = Util.getIntValue(config.notificationExperienceColor());
 
 		log.debug("Notify xp milestone reached for {} to xp {}", skill.getName(), QuantityFormatter.formatNumber(xp));
+		notifications.addNotification(title, text, color);
+	}
+
+	/**
+	 * Adds a leaderboard rank notification to the queue if certain requirements are met.
+	 *
+	 * @param skill Skill
+	 * @param leaderboardEntry LeaderboardEntry
+	 */
+	private void notifyLeaderboard(Skill skill, LeaderboardEntry leaderboardEntry)
+	{
+		String title = Util.replaceLeaderboardValues(config.notificationLeaderboardRankTitle(), skill, leaderboardEntry);
+		String text = Util.replaceLeaderboardValues(config.notificationLeaderboardRankText(), skill, leaderboardEntry);
+		int color = Util.getIntValue(config.notificationLeaderboardRankColor());
+
+		log.debug("Notify leaderboard milestone reached for {} to rank {} (xp {})",
+				skill.getName(),
+				QuantityFormatter.formatNumber(leaderboardEntry.rank),
+				QuantityFormatter.formatNumber(leaderboardEntry.xp));
 		notifications.addNotification(title, text, color);
 	}
 

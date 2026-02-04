@@ -3,6 +3,7 @@ package com.antimated.util;
 import java.awt.Color;
 
 import com.antimated.MilestoneLevelsConfig;
+import com.antimated.leaderboard.LeaderboardEntry;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Experience;
@@ -102,6 +103,25 @@ public class Util
 		return Text.escapeJagex(text
 			.replaceAll("\\$skill", skill.getName())
 			.replaceAll("\\$xp", QuantityFormatter.formatNumber(xp)));
+	}
+
+
+	/** Replaces the words $skill, $xp, $rank, and $player from the text to the passed skill and data from
+	 * leaderboardEntry
+	 *
+	 * @param text  String
+	 * @param skill Skill
+	 * @param leaderboardEntry LeaderboardEntry
+	 * @return String
+	 */
+	public static String replaceLeaderboardValues(String text, Skill skill, LeaderboardEntry leaderboardEntry)
+	{
+		return Text.escapeJagex(text
+				.replaceAll("\\$skill", skill.getName())
+				.replaceAll("\\$xp", QuantityFormatter.formatNumber(leaderboardEntry.xp))
+				.replaceAll("\\$rank", QuantityFormatter.formatNumber(leaderboardEntry.rank))
+				.replaceAll("\\$player", leaderboardEntry.name)
+				.replaceAll("\\$name", leaderboardEntry.name));
 	}
 
 	/**
