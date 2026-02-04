@@ -291,59 +291,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	 */
 	private boolean shouldNotifyForSkill(Skill skill)
 	{
-		switch (skill)
-		{
-			case ATTACK:
-				return config.showAttackNotifications();
-			case DEFENCE:
-				return config.showDefenceNotifications();
-			case STRENGTH:
-				return config.showStrengthNotifications();
-			case HITPOINTS:
-				return config.showHitpointsNotifications();
-			case RANGED:
-				return config.showRangedNotifications();
-			case PRAYER:
-				return config.showPrayerNotifications();
-			case MAGIC:
-				return config.showMagicNotifications();
-			case COOKING:
-				return config.showCookingNotifications();
-			case WOODCUTTING:
-				return config.showWoodcuttingNotifications();
-			case FLETCHING:
-				return config.showFletchingNotifications();
-			case FISHING:
-				return config.showFishingNotifications();
-			case FIREMAKING:
-				return config.showFiremakingNotifications();
-			case CRAFTING:
-				return config.showCraftingNotifications();
-			case SMITHING:
-				return config.showSmithingNotifications();
-			case MINING:
-				return config.showMiningNotifications();
-			case HERBLORE:
-				return config.showHerbloreNotifications();
-			case AGILITY:
-				return config.showAgilityNotifications();
-			case THIEVING:
-				return config.showThievingNotifications();
-			case SLAYER:
-				return config.showSlayerNotifications();
-			case FARMING:
-				return config.showFarmingNotifications();
-			case RUNECRAFT:
-				return config.showRunecraftNotifications();
-			case HUNTER:
-				return config.showHunterNotifications();
-			case CONSTRUCTION:
-				return config.showConstructionNotifications();
-			case SAILING:
-				return config.showSailingNotifications();
-		}
-
-		return true;
+		return Util.skillEnabledInConfig(config, skill);
 	}
 
 	public void migrate()
