@@ -1,7 +1,6 @@
 package com.antimated.leaderboard;
 
 import lombok.Getter;
-import okhttp3.HttpUrl;
 
 @Getter
 public enum ValidLeaderboard {

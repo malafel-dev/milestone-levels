@@ -7,14 +7,7 @@ import okhttp3.*;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  * Facilitates making requests to the OSRS hiscores website, specifically for "leaderboard" pages under specific skills.

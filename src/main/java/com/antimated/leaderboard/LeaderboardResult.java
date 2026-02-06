@@ -1,7 +1,6 @@
 package com.antimated.leaderboard;
 
 import lombok.Value;
-import net.runelite.api.Skill;
 
 import java.util.Collections;
 import java.util.List;
