@@ -42,7 +42,7 @@ public class LeaderboardClient {
             @Override
             public void onFailure(Call call, IOException e) { future.completeExceptionally(e); }
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response) {
                 try (response) {
                     LeaderboardResult result;
                     try {
