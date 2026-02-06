@@ -143,11 +143,23 @@ public interface MilestoneLevelsConfig extends Config
 	String SECTION_LEADERBOARD = "leaderboardRanks";
 
 	@ConfigItem(
+			keyName = "enableLeaderboard",
+			name = "Enabled",
+			description = "Toggle on if hiscore notifications should be enabled.",
+			section = SECTION_LEADERBOARD,
+			position = 0
+	)
+	default boolean enableLeaderboard()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "notificationLeaderboardRankColor",
 		name = "Color",
 		description = "Changes the color of the notification title and text.",
 		section = SECTION_LEADERBOARD,
-		position = 0
+		position = 1
 	)
 	default Color notificationLeaderboardRankColor()
 	{
@@ -159,7 +171,7 @@ public interface MilestoneLevelsConfig extends Config
 		name = "Title",
 		description = "Can include $rank, $xp, $player, and $skill variables.",
 		section = SECTION_LEADERBOARD,
-		position = 1
+		position = 2
 	)
 	default String notificationLeaderboardRankTitle()
 	{
@@ -171,7 +183,7 @@ public interface MilestoneLevelsConfig extends Config
 		name = "Text",
 		description = "Can include $rank, $xp, $player, and $skill variables.",
 		section = SECTION_LEADERBOARD,
-		position = 2
+		position = 3
 	)
 	default String notificationLeaderboardRankText()
 	{
@@ -183,7 +195,7 @@ public interface MilestoneLevelsConfig extends Config
 		name = "Leaderboard",
 		description = "Configures which leaderboard to use for rank notifications.",
 		section = SECTION_LEADERBOARD,
-		position = 3
+		position = 4
 	)
 	default ValidLeaderboard chosenLeaderboard()
 	{

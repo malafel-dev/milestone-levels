@@ -76,12 +76,23 @@ public class LeaderboardManager {
     private int hiscoreRetryCount = 0;
 
     private final Map<Skill, LeaderboardSkillState> skillStates = new EnumMap<>(Skill.class);
+    private boolean wasEnabled = false;
 
     LeaderboardManager() {
         reset();
     }
 
     public void process(GameTick event) {
+        if (!config.enableLeaderboard()) {
+            wasEnabled = false;
+            return;
+        } else {
+            if (!wasEnabled) {
+                reset();
+            }
+            wasEnabled = true;
+        }
+
         switch (state) {
             case AWAITING_PLAYER_NAME:
                 processAwaitingPlayerName();
@@ -107,6 +118,10 @@ public class LeaderboardManager {
      * @return List<LeaderboardEntry>
      */
     public List<LeaderboardEntry> getMilestoneLeaderboardEntries(Skill skill, int previousXp, int currentXp) {
+        if (!config.enableLeaderboard()) {
+            return new ArrayList<LeaderboardEntry>();
+        }
+
         LeaderboardSkillState skillState = skillStates.get(skill);
         return skillState.validLeaderboardEntries.stream()
                                                  .filter(entry -> entry.xp > previousXp && entry.xp < currentXp)
