@@ -9,6 +9,7 @@ import net.runelite.api.Skill;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.hiscore.HiscoreClient;
+import net.runelite.client.hiscore.HiscoreEndpoint;
 import net.runelite.client.hiscore.HiscoreResult;
 import net.runelite.client.hiscore.HiscoreSkill;
 
@@ -135,7 +136,7 @@ public class LeaderboardManager {
                 state = LeaderboardManagerState.UNRECOVERABLE_ERROR;
                 return;
             }
-            hiscoreFuture = hiscoreClient.lookupAsync(client.getLocalPlayer().getName(), config.hiscoreEndpoint());
+            hiscoreFuture = hiscoreClient.lookupAsync(client.getLocalPlayer().getName(), HiscoreEndpoint.valueOf(config.chosenLeaderboard().name()));
             state = LeaderboardManagerState.AWAITING_PLAYER_HISCORE;
         }
     }
@@ -157,7 +158,7 @@ public class LeaderboardManager {
             } catch (ExecutionException e) {
                 log.warn("Encountered an exception when trying to fetch player specific hiscore data.", e);
                 if (hiscoreRetryCount < MAX_REQUEST_RETRIES) {
-                    hiscoreFuture = hiscoreClient.lookupAsync(client.getLocalPlayer().getName(), config.hiscoreEndpoint());
+                    hiscoreFuture = hiscoreClient.lookupAsync(client.getLocalPlayer().getName(), HiscoreEndpoint.valueOf(config.chosenLeaderboard().name()));
                     hiscoreRetryCount++;
                 } else {
                     log.warn("Reached max retries when fetching player specific hiscore data. Stopping.");
@@ -310,7 +311,7 @@ public class LeaderboardManager {
         int pageToRequest = ((nextRankToMeasure - 1) / 25) + 1;
 
         skillState.leaderboardFuture = leaderboardClient.lookupAsync(
-                skill, pageToRequest, LeaderboardEndpoint.valueOf(config.hiscoreEndpoint().name()));
+                skill, pageToRequest, LeaderboardEndpoint.valueOf(config.chosenLeaderboard().name()));
     }
 
 }

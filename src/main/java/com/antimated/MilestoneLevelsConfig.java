@@ -1,6 +1,8 @@
 package com.antimated;
 
 import java.awt.Color;
+
+import com.antimated.leaderboard.ValidLeaderboard;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -178,15 +180,15 @@ public interface MilestoneLevelsConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "hiscoreEndpoint",
+		keyName = "chosenLeaderboard",
 		name = "Leaderboard",
 		description = "Configures which leaderboard to use for rank notifications.",
 		section = SECTION_LEADERBOARD,
 		position = 3
 	)
-	default HiscoreEndpoint hiscoreEndpoint()
+	default ValidLeaderboard chosenLeaderboard()
 	{
-		return HiscoreEndpoint.NORMAL;
+		return ValidLeaderboard.NORMAL;
 	}
 
 	@ConfigSection(

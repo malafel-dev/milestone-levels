@@ -78,7 +78,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	boolean developerMode;
 
 	private final Map<Skill, Integer> previousXpMap = new EnumMap<>(Skill.class);
-	private HiscoreEndpoint previousHiscoreEndpoint = HiscoreEndpoint.NORMAL;
+	private ValidLeaderboard previousChosenLeaderboard = ValidLeaderboard.NORMAL;
 
 	@Provides
 	MilestoneLevelsConfig provideConfig(ConfigManager configManager)
@@ -90,7 +90,7 @@ public class MilestoneLevelsPlugin extends Plugin
 	protected void startUp()
 	{
 		clientThread.invoke(this::initializePreviousXpMap);
-		previousHiscoreEndpoint = config.hiscoreEndpoint();
+		previousChosenLeaderboard = config.chosenLeaderboard();
 		notifications.startUp();
 		version.startUp();
 		migrate();
@@ -130,9 +130,9 @@ public class MilestoneLevelsPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
-		if (previousHiscoreEndpoint != config.hiscoreEndpoint()) {
+		if (previousChosenLeaderboard != config.chosenLeaderboard()) {
 			leaderboardManager.reset();
-			previousHiscoreEndpoint = config.hiscoreEndpoint();
+			previousChosenLeaderboard = config.chosenLeaderboard();
 		}
 	}
 
