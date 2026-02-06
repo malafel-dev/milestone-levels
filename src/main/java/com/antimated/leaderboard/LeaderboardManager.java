@@ -190,7 +190,7 @@ public class LeaderboardManager {
      */
     private void ingestPlayerHiscoreData() {
         for (Skill s: Skill.values()) {
-            skillStates.get(s).lowestMeasuredRank = playerHiscore.getSkill(HiscoreSkill.valueOf(s.name())).getRank();
+            skillStates.get(s).nextRankToMeasure = playerHiscore.getSkill(HiscoreSkill.valueOf(s.name())).getRank() - 1;
         }
     }
 
@@ -209,7 +209,7 @@ public class LeaderboardManager {
     private void processSkill(Skill skill) {
         LeaderboardSkillState skillState = skillStates.get(skill);
         if (skillState.isDisabledFromError ||
-            skillState.lowestMeasuredRank <= 1 ||
+            skillState.nextRankToMeasure < 1 ||
             playerHiscore.getSkill(HiscoreSkill.valueOf(skill.name())).getLevel() < MIN_REQUIRED_LEVEL_FOR_TRACKING) {
             return;
         }
@@ -253,8 +253,15 @@ public class LeaderboardManager {
                 }
 
                 // Rank is in decreasing order, meaning the final element is the lowest rank numerically.
-                skillState.lowestMeasuredRank =
-                        skillState.validLeaderboardEntries.get(skillState.validLeaderboardEntries.size()-1).rank;
+                skillState.nextRankToMeasure =
+                        skillState.validLeaderboardEntries.get(skillState.validLeaderboardEntries.size()-1).rank - 1;
+
+                // There can be lots of people with 200m experience. Short circuit this and skip straight to rank 1 to
+                // prevent tons of pointless queries.
+                if (skillState.nextRankToMeasure > 1 &&
+                    skillState.validLeaderboardEntries.get(skillState.validLeaderboardEntries.size()-1).xp == 200_000_000) {
+                    skillState.nextRankToMeasure = 1;
+                }
             } catch (ExecutionException e) {
                 // Error handling has lots of failure cases. We only want to retry if there was some sort of network
                 // issue, which would manifest as an IOException wrapped with an ExecutionException from the future.
@@ -311,7 +318,7 @@ public class LeaderboardManager {
             return;
         }
 
-        int nextRankToMeasure = skillState.lowestMeasuredRank - 1;
+        int nextRankToMeasure = skillState.nextRankToMeasure - 1;
         if (nextRankToMeasure <= 0) {
             return;
         }

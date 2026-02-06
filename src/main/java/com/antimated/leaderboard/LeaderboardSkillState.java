@@ -20,10 +20,10 @@ public class LeaderboardSkillState {
     // If not null, this is the Future pending an active request for leaderboard data.
     public Future<LeaderboardResult> leaderboardFuture = null;
 
-    // The lowest rank that has been measured on the leaderboard. Gets set to the player's current rank upon entering
+    // The next rank that should be measured on the leaderboards. Gets set to the player's current rank-1 upon entering
     // the active state. It is used to determine which page to search for data. "Lowest" in this case means lowest
     // numerically, where rank 1 is lower than rank 2.
-    public int lowestMeasuredRank = 0;
+    public int nextRankToMeasure = 0;
 
     // List of leaderboard entries that are currently being used to
     public List<LeaderboardEntry> validLeaderboardEntries = new ArrayList<LeaderboardEntry>();
